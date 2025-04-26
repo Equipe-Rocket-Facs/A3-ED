@@ -10,6 +10,10 @@ public class AVLTree implements Tree<Integer, AVLTree.Node> {
         rotationsCount = 0;
     }
 
+    protected Node getRoot() {
+        return root;
+    }
+
     // Left element of root now becomes root
     private Node rotateRight(Node node) {
         Node left = node.left;
@@ -224,6 +228,22 @@ public class AVLTree implements Tree<Integer, AVLTree.Node> {
             this.value = value;
             height = 0;
             left = right = null;
+        }
+
+        public Integer getValue() {
+            return value;
+        }
+
+        public Integer getHeight() {
+            return height;
+        }
+
+        public Node getLeft() {
+            return left;
+        }
+
+        public Node getRight() {
+            return right;
         }
 
         private static int height(Node node) {

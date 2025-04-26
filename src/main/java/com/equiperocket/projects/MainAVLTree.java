@@ -1,6 +1,7 @@
 package com.equiperocket.projects;
 
 import com.equiperocket.projects.avltree.AVLTree;
+import com.equiperocket.projects.avltree.AVLTreeVisualizer;
 import com.equiperocket.projects.avltree.Tree;
 
 import java.util.Scanner;
@@ -14,7 +15,9 @@ public class MainAVLTree {
     }
 
     private static void processMenuOperations() {
-        Tree tree = new AVLTree();
+        AVLTree tree = new AVLTree();
+        AVLTreeVisualizer visualizer = new AVLTreeVisualizer(tree);
+        visualizer.show();
 
         do {
             System.out.println("1. Insert");
@@ -30,6 +33,7 @@ public class MainAVLTree {
                 case 1:
                     System.out.print("Enter the value to insert: ");
                     tree.insert(readInteger());
+                    visualizer.update();
                     break;
                 case 2:
                     System.out.print("Enter the value to find: ");
@@ -39,16 +43,19 @@ public class MainAVLTree {
                 case 3:
                     System.out.print("Enter the value to remove: ");
                     tree.remove(readInteger());
+                    visualizer.update();
                     break;
                 case 4:
                     processPrintMenu(tree);
                     break;
                 case 5:
                     tree = new AVLTree();
+                    visualizer = new AVLTreeVisualizer(tree);
+                    visualizer.show();
                     break;
                 case 6:
                     sc.close();
-                    return;
+                    System.exit(0);
                 default:
                     System.out.println("Invalid option!");
             }
