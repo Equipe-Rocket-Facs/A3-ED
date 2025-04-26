@@ -1,6 +1,5 @@
-package org.example;
+package com.equiperocket.projects.cinema;
 
-import javax.swing.*;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;

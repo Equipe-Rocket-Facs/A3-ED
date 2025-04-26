@@ -1,7 +1,6 @@
-package org.example;
+package com.equiperocket.projects.cinema;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class Guiche {
     private final int id;

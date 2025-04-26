@@ -1,9 +1,13 @@
-package org.example;
+package com.equiperocket.projects;
+
+import com.equiperocket.projects.cinema.Cinema;
+import com.equiperocket.projects.cinema.Cliente;
+import com.equiperocket.projects.cinema.TipoClient;
 
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
-public class Main {
+public class MainCinema {
     private static final String MENU = """
             
             === Menu do Cinema ===

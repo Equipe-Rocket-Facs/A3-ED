@@ -1,4 +1,4 @@
-package org.example;
+package com.equiperocket.projects.cinema;
 
 public enum TipoClient {
     NORMAL(3),

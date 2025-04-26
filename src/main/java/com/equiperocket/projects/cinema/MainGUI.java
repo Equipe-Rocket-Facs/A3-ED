@@ -1,4 +1,4 @@
-package org.example;
+package com.equiperocket.projects.cinema;
 
 import javax.swing.*;
 import java.awt.*;
