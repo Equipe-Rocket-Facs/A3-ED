@@ -1,4 +1,4 @@
-package org.example.projects.avltree;
+package com.equiperocket.projects.avltree;
 
 public class AVLTree implements Tree<Integer, AVLTree.Node> {
 
@@ -236,6 +236,11 @@ public class AVLTree implements Tree<Integer, AVLTree.Node> {
 
         public static int balanceFactor(Node node) {
             return height(node.right) - height(node.left);
+        }
+
+        @Override
+        public String toString() {
+            return "Node of value " + value + " at height " + height;
         }
     }
 }

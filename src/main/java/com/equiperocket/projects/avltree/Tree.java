@@ -1,4 +1,4 @@
-package org.example.projects.avltree;
+package com.equiperocket.projects.avltree;
 
 /**
  * A generic tree interface that defines basic operations for a tree data structure.

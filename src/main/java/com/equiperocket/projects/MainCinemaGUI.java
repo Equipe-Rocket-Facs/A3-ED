@@ -1,4 +1,8 @@
-package com.equiperocket.projects.cinema;
+package com.equiperocket.projects;
+
+import com.equiperocket.projects.cinema.Cinema;
+import com.equiperocket.projects.cinema.Cliente;
+import com.equiperocket.projects.cinema.TipoClient;
 
 import javax.swing.*;
 import java.awt.*;
@@ -6,7 +10,7 @@ import java.awt.event.*;
 import java.util.List;
 import java.util.Queue;
 
-public class MainGUI extends JFrame {
+public class MainCinemaGUI extends JFrame {
     // Core components
     private final Cinema cinema;
     private JPanel filasPanel;
@@ -38,7 +42,7 @@ public class MainGUI extends JFrame {
     private static final Font FONTE_NEGRITO = new Font("Arial", Font.BOLD, 14);
     private static final Font FONTE_TITULO = new Font("Arial", Font.BOLD, 16);
 
-    public MainGUI(Cinema cinema) {
+    public MainCinemaGUI(Cinema cinema) {
         this.cinema = cinema;
         configurarJanela();
         iniciarComponentes();
@@ -574,7 +578,7 @@ public class MainGUI extends JFrame {
         SwingUtilities.invokeLater(() -> {
             Cinema cinema = new Cinema(numeroGuiches);
             cinema.adicionarClientesIniciais(cinema);
-            MainGUI gui = new MainGUI(cinema);
+            MainCinemaGUI gui = new MainCinemaGUI(cinema);
             gui.setVisible(true);
         });
     }
