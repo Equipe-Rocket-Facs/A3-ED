@@ -2,6 +2,7 @@ package com.equiperocket.projects;
 
 import com.equiperocket.projects.cinema.Cinema;
 import com.equiperocket.projects.cinema.Cliente;
+import com.equiperocket.projects.cinema.Fila;
 import com.equiperocket.projects.cinema.TipoClient;
 
 import javax.swing.*;
@@ -62,8 +63,8 @@ public class MainCinemaGUI extends JFrame {
         JPanel topPanel = criarPainelSuperior();
         JPanel guichesPanel = criarPainelGuiches();
 
-        inicializarPainelFilas();
-        inicializarStatusLabel();
+        inicializarStatusLabel(); // Inicializa statusLabel primeiro
+        inicializarPainelFilas(); // Depois inicializa as filas que podem usar statusLabel
 
         topPanel.add(guichesPanel, BorderLayout.CENTER);
         mainPanel.add(topPanel, BorderLayout.NORTH);
@@ -171,12 +172,27 @@ public class MainCinemaGUI extends JFrame {
     }
 
     private void iniciarAtendimentoAutomatico() {
-        cinema.iniciarAtendimentoAutomatico(15);
-        atualizarFilasVisuais();
+        try {
+            cinema.iniciarAtendimentoAutomatico(15);
+            atualizarFilasVisuais();
+            statusLabel.setForeground(Color.WHITE);
+        } catch (Exception e) {
+            mostrarErro("Erro ao iniciar atendimento automático", e.getMessage());
+            // Reverte o estado do botão caso ocorra erro
+            atendimentoAutomaticoAtivo = false;
+            atendimentoBtn.setText("Iniciar Atendimento");
+            atendimentoBtn.setBackground(COR_SECUNDARIA);
+        }
     }
 
     private void pararAtendimentoAutomatico() {
-        cinema.pararAtendimentoAutomatico();
+        try {
+            cinema.pararAtendimentoAutomatico();
+            statusLabel.setForeground(Color.WHITE);
+        } catch (Exception e) {
+            mostrarErro("Erro ao parar atendimento automático", e.getMessage());
+            // Mantém o estado atual em caso de erro
+        }
     }
 
     private JPanel criarPainelGuiches() {
@@ -250,32 +266,57 @@ public class MainCinemaGUI extends JFrame {
     }
 
     private void pausarGuiche(int guicheId, JButton pauseButton) {
-        cinema.pausarGuiche(guicheId);
-        pauseButton.setText("Retomar");
-        pauseButton.setBackground(COR_BOTAO_PARAR);
-        statusLabel.setText("Guichê " + (guicheId + 1) + " pausado");
+        try {
+            cinema.pausarGuiche(guicheId);
+            pauseButton.setText("Retomar");
+            pauseButton.setBackground(COR_BOTAO_PARAR);
+            statusLabel.setText("Guichê " + (guicheId + 1) + " pausado");
+            statusLabel.setForeground(Color.WHITE);
+        } catch (Exception e) {
+            mostrarErro("Erro ao pausar guichê", e.getMessage());
+            // Reverte o estado do botão caso ocorra erro
+            pauseButton.setText("Pausar");
+            pauseButton.setBackground(COR_SECUNDARIA);
+        }
     }
 
     private void retomarGuiche(int guicheId, JButton pauseButton) {
-        cinema.reativarGuiche(guicheId);
-        pauseButton.setText("Pausar");
-        pauseButton.setBackground(COR_BOTAO_RETOMAR);
-        statusLabel.setText("Guichê " + (guicheId + 1) + " retomado");
+        try {
+            cinema.reativarGuiche(guicheId);
+            pauseButton.setText("Pausar");
+            pauseButton.setBackground(COR_BOTAO_RETOMAR);
+            statusLabel.setText("Guichê " + (guicheId + 1) + " retomado");
+            statusLabel.setForeground(Color.WHITE);
+        } catch (Exception e) {
+            mostrarErro("Erro ao retomar guichê", e.getMessage());
+            // Reverte o estado do botão caso ocorra erro
+            pauseButton.setText("Retomar");
+            pauseButton.setBackground(COR_BOTAO_PARAR);
+        }
     }
 
-    private void atualizarFilasVisuais() {
-        filasPanel.removeAll();
-        List<Queue<Cliente>> filasDoCinema = cinema.getFilas();
+private void atualizarFilasVisuais() {
+        try {
+            filasPanel.removeAll();
+            List<Fila<Cliente>> filasDoCinema = cinema.getFilas();
 
-        JPanel todasFilasPanel = criarPainelTodasFilas(filasDoCinema);
+            JPanel todasFilasPanel = criarPainelTodasFilas(filasDoCinema);
 
-        filasPanel.add(todasFilasPanel);
-        adicionarLegenda();
-        filasPanel.revalidate();
-        filasPanel.repaint();
+            filasPanel.add(todasFilasPanel);
+            adicionarLegenda();
+            filasPanel.revalidate();
+            filasPanel.repaint();
+            
+            // Se chegou aqui sem erros, podemos resetar a cor do statusLabel caso esteja em vermelho
+            if (statusLabel.getForeground().equals(Color.RED)) {
+                statusLabel.setForeground(Color.WHITE);
+            }
+        } catch (Exception e) {
+            mostrarErro("Erro ao atualizar interface", e.getMessage());
+        }
     }
 
-    private JPanel criarPainelTodasFilas(List<Queue<Cliente>> filasDoCinema) {
+    private JPanel criarPainelTodasFilas(List<Fila<Cliente>> filasDoCinema) {
         JPanel todasFilasPanel = new JPanel(new GridLayout(1, filasDoCinema.size(), 15, 0));
         todasFilasPanel.setBackground(COR_FUNDO);
 
@@ -287,7 +328,7 @@ public class MainCinemaGUI extends JFrame {
     }
 
     private JPanel criarPainelFila(int numeroFila) {
-        Queue<Cliente> fila = cinema.getFila(numeroFila);
+        Fila<Cliente> fila = cinema.getFila(numeroFila);
         JPanel painelFila = new JPanel(new BorderLayout(5, 5));
 
         painelFila.setBackground(COR_FUNDO);
@@ -298,9 +339,9 @@ public class MainCinemaGUI extends JFrame {
         return painelFila;
     }
 
-    private void adicionarComponentesFila(JPanel painelFila, int numeroFila, Queue<Cliente> fila) {
+    private void adicionarComponentesFila(JPanel painelFila, int numeroFila, Fila<Cliente> fila) {
         JLabel tituloLabel = criarTituloFila(numeroFila);
-        JPanel clientesPanel = criarPainelClientes(fila);
+        JPanel clientesPanel = criarPainelClientes(fila, numeroFila);
         JLabel contadorLabel = criarContadorFila(fila);
 
         painelFila.add(tituloLabel, BorderLayout.NORTH);
@@ -316,35 +357,24 @@ public class MainCinemaGUI extends JFrame {
         return tituloLabel;
     }
 
-    private JPanel criarPainelClientes(Queue<Cliente> fila) {
+    private JPanel criarPainelClientes(Fila<Cliente> fila, int numeroFila) {
         JPanel clientesPanel = new JPanel(new GridLayout(0, 1, 5, 5));
         clientesPanel.setBackground(COR_FUNDO);
 
-        List<Cliente> clientesOrdenados = new java.util.ArrayList<>(fila);
-        ordenarClientesPorPrioridade(clientesOrdenados);
+        cinema.getGuiche(numeroFila).ordenarFilaPorPrioridade();
 
-        for (Cliente cliente : clientesOrdenados) {
+        for (Cliente cliente : fila) {
             clientesPanel.add(criarPainelCliente(cliente));
         }
 
         return clientesPanel;
     }
 
-    private JLabel criarContadorFila(Queue<Cliente> fila) {
-        JLabel contadorLabel = new JLabel("Pessoas na fila: " + fila.size(), JLabel.CENTER);
+    private JLabel criarContadorFila(Fila<Cliente> fila) {
+        JLabel contadorLabel = new JLabel("Pessoas na fila: " + fila.tamanho(), JLabel.CENTER);
         contadorLabel.setForeground(COR_TEXTO);
         contadorLabel.setBorder(BorderFactory.createEmptyBorder(5, 0, 5, 0));
         return contadorLabel;
-    }
-
-    private void ordenarClientesPorPrioridade(List<Cliente> clientes) {
-        clientes.sort((c1, c2) -> {
-            if (c1.getTipo() == TipoClient.IDOSO && c2.getTipo() != TipoClient.IDOSO) return -1;
-            if (c1.getTipo() != TipoClient.IDOSO && c2.getTipo() == TipoClient.IDOSO) return 1;
-            if (c1.getTipo() == TipoClient.ESTUDANTE && c2.getTipo() == TipoClient.NORMAL) return -1;
-            if (c1.getTipo() == TipoClient.NORMAL && c2.getTipo() == TipoClient.ESTUDANTE) return 1;
-            return 0;
-        });
     }
 
     private JPanel criarPainelCliente(Cliente cliente) {
@@ -431,20 +461,24 @@ public class MainCinemaGUI extends JFrame {
     }
 
     private void mostrarDialogoAdicionarCliente() {
-        JDialog dialog = criarDialogoAdicionarCliente();
-        JPanel inputPanel = criarPainelInputCliente();
-        JComboBox<String> tipoCombo = criarComboBoxTipoCliente();
-        JButton confirmarBtn = criarBotaoConfirmarNovoCliente(dialog, tipoCombo);
+        try {
+            JDialog dialog = criarDialogoAdicionarCliente();
+            JPanel inputPanel = criarPainelInputCliente();
+            JComboBox<String> tipoCombo = criarComboBoxTipoCliente();
+            JButton confirmarBtn = criarBotaoConfirmarNovoCliente(dialog, tipoCombo);
 
-        inputPanel.add(new JLabel("Tipo de Cliente:") {{ setForeground(COR_TEXTO); }});
-        inputPanel.add(tipoCombo);
-        inputPanel.add(Box.createVerticalStrut(10));
-        inputPanel.add(confirmarBtn);
+            inputPanel.add(new JLabel("Tipo de Cliente:") {{ setForeground(COR_TEXTO); }});
+            inputPanel.add(tipoCombo);
+            inputPanel.add(Box.createVerticalStrut(10));
+            inputPanel.add(confirmarBtn);
 
-        dialog.add(inputPanel, BorderLayout.CENTER);
-        dialog.pack();
-        dialog.setLocationRelativeTo(this);
-        dialog.setVisible(true);
+            dialog.add(inputPanel, BorderLayout.CENTER);
+            dialog.pack();
+            dialog.setLocationRelativeTo(this);
+            dialog.setVisible(true);
+        } catch (Exception e) {
+            mostrarErro("Erro ao exibir diálogo", e.getMessage());
+        }
     }
 
     private JDialog criarDialogoAdicionarCliente() {
@@ -472,22 +506,33 @@ public class MainCinemaGUI extends JFrame {
     private JButton criarBotaoConfirmarNovoCliente(JDialog dialog, JComboBox<String> tipoCombo) {
         JButton confirmarBtn = criarBotaoEstilizado("Confirmar");
         confirmarBtn.addActionListener(e -> {
-            TipoClient tipo = TipoClient.valueOf((String) tipoCombo.getSelectedItem());
-            Cliente novoCliente = new Cliente(tipo);
-            cinema.adicionarCliente(novoCliente);
-            dialog.dispose();
+            try {
+                TipoClient tipo = TipoClient.valueOf((String) tipoCombo.getSelectedItem());
+                Cliente novoCliente = new Cliente(tipo);
+                cinema.adicionarCliente(novoCliente);
+                statusLabel.setText("Cliente adicionado com sucesso");
+                statusLabel.setForeground(Color.WHITE);
+                dialog.dispose();
+            } catch (Exception ex) {
+                mostrarErro("Erro ao adicionar cliente", ex.getMessage());
+                // Não fecha o diálogo em caso de erro para permitir nova tentativa
+            }
         });
         return confirmarBtn;
     }
 
     private void mostrarEstatisticas() {
-        JDialog dialog = criarDialogoEstatisticas();
-        JPanel statsPanel = criarPainelEstatisticas();
+        try {
+            JDialog dialog = criarDialogoEstatisticas();
+            JPanel statsPanel = criarPainelEstatisticas();
 
-        adicionarEstatisticas(statsPanel);
+            adicionarEstatisticas(statsPanel);
 
-        dialog.add(statsPanel);
-        dialog.setVisible(true);
+            dialog.add(statsPanel);
+            dialog.setVisible(true);
+        } catch (Exception e) {
+            mostrarErro("Erro ao exibir estatísticas", e.getMessage());
+        }
     }
 
     private JDialog criarDialogoEstatisticas() {
@@ -505,11 +550,18 @@ public class MainCinemaGUI extends JFrame {
     }
 
     private void adicionarEstatisticas(JPanel statsPanel) {
-        adicionarEstatistica(statsPanel, "Total de clientes atendidos: ",
-            String.valueOf(cinema.getTotalClientesAtendidos()));
-        adicionarEstatistica(statsPanel, "Tempo médio de espera: ", "20 segundos");
-        adicionarEstatistica(statsPanel, "Clientes na fila: ",
-            String.valueOf(cinema.getTotalClientesNasFilas()));
+        try {
+            adicionarEstatistica(statsPanel, "Total de clientes atendidos: ",
+                String.valueOf(cinema.getTotalClientesAtendidos()));
+            adicionarEstatistica(statsPanel, "Tempo médio de espera: ", "20 segundos");
+            adicionarEstatistica(statsPanel, "Clientes na fila: ",
+                String.valueOf(cinema.getTotalClientesNasFilas()));
+        } catch (Exception e) {
+            // Adiciona uma mensagem de erro ao painel de estatísticas
+            JLabel erroLabel = new JLabel("Erro ao carregar estatísticas: " + e.getMessage());
+            erroLabel.setForeground(Color.RED);
+            statsPanel.add(erroLabel);
+        }
     }
 
     private void adicionarEstatistica(JPanel panel, String label, String valor) {
@@ -533,6 +585,28 @@ public class MainCinemaGUI extends JFrame {
         componente.setForeground(Color.WHITE);
         componente.setFont(FONTE_PADRAO);
     }
+    
+    /**
+     * Exibe uma mensagem de erro para o usuário
+     * @param titulo Título da janela de erro
+     * @param mensagem Mensagem de erro a ser exibida
+     */
+    private void mostrarErro(String titulo, String mensagem) {
+        // Exibe o diálogo de erro
+        JOptionPane.showMessageDialog(this,
+                mensagem,
+                titulo,
+                JOptionPane.ERROR_MESSAGE);
+                
+        // Também atualiza o statusLabel para indicar o erro (se já estiver inicializado)
+        if (statusLabel != null) {
+            statusLabel.setText("ERRO: " + mensagem);
+            statusLabel.setForeground(Color.RED);
+        }
+        
+        // Imprime o erro no console para debug
+        System.err.println(titulo + ": " + mensagem);
+    }
 
     public static void main(String[] args) {
         configurarLookAndFeel();
@@ -548,9 +622,19 @@ public class MainCinemaGUI extends JFrame {
     }
 
     private static void iniciarAplicacao() {
-        String input = solicitarNumeroGuiches();
-        if (input != null) {
-            processarInputGuiches(input);
+        boolean entradaValida = false;
+        
+        while (!entradaValida) {
+            String input = solicitarNumeroGuiches();
+            
+            // Se o usuário cancelar o diálogo, sair do loop
+            if (input == null) {
+                System.exit(0);
+                return;
+            }
+            
+            // Tentar processar a entrada
+            entradaValida = processarInputGuiches(input);
         }
     }
 
@@ -561,16 +645,19 @@ public class MainCinemaGUI extends JFrame {
                 JOptionPane.QUESTION_MESSAGE);
     }
 
-    private static void processarInputGuiches(String input) {
+    private static boolean processarInputGuiches(String input) {
         try {
             int numeroGuiches = Integer.parseInt(input);
             if (numeroGuiches >= 1 && numeroGuiches <= 4) {
                 criarEExibirGUI(numeroGuiches);
+                return true; // Entrada válida, sair do loop
             } else {
                 mostrarErroNumeroGuiches();
+                return false; // Entrada inválida, continuar no loop
             }
         } catch (NumberFormatException e) {
             mostrarErroFormatoInvalido();
+            return false; // Entrada inválida, continuar no loop
         }
     }
 

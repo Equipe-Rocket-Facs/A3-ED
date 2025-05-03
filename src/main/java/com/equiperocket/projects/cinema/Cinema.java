@@ -92,10 +92,10 @@ public class Cinema {
     }
 
 
-    private void redistribuirClientes(Queue<Cliente> fila) {
+    private void redistribuirClientes(Fila<Cliente> fila) {
         new Thread(() -> {
-            while (!fila.isEmpty()) {
-                Cliente cliente = fila.poll();
+            while (!fila.estaVazia()) {
+                Cliente cliente = fila.desenfileirar();
                 adicionarCliente(cliente);
             }
         }).start();
@@ -116,7 +116,7 @@ public class Cinema {
 
         for (Guiche guiche : guiches) {
             executor.scheduleAtFixedRate(() -> {
-                if (guiche.isAtivo() && !guiche.getFila().isEmpty()) {
+                if (guiche.isAtivo() && !guiche.getFila().estaVazia()) {
                     guiche.ordenarFilaPorPrioridade();
                     Cliente atendido = guiche.atenderCliente();
                     if (atendido != null) {
@@ -154,8 +154,8 @@ public class Cinema {
         });
     }
 
-    public List<Queue<Cliente>> getFilas() {
-        List<Queue<Cliente>> todasFilas = new ArrayList<>();
+    public List<Fila<Cliente>> getFilas() {
+        List<Fila<Cliente>> todasFilas = new ArrayList<>();
         for (Guiche guiche : guiches) {
             todasFilas.add(guiche.getFila());
         }
@@ -163,9 +163,16 @@ public class Cinema {
     }
 
     // Método para obter uma fila específica de um guichê
-    public Queue<Cliente> getFila(int index) {
+    public Fila<Cliente> getFila(int index) {
         if (index >= 0 && index < guiches.size()) {
             return guiches.get(index).getFila();
+        }
+        return null;
+    }
+
+    public Guiche getGuiche(int index) {
+        if (index >= 0 && index < guiches.size()) {
+            return guiches.get(index);
         }
         return null;
     }
@@ -178,7 +185,7 @@ public class Cinema {
 
     public int getTotalClientesNasFilas() {
         return guiches.stream()
-                .mapToInt(guiche -> guiche.getFila().size())
+                .mapToInt(guiche -> guiche.getFila().tamanho())
                 .sum();
     }
 

@@ -4,31 +4,31 @@ import java.util.*;
 
 public class Guiche {
     private final int id;
-    private final Queue<Cliente> fila;
+    private final Fila<Cliente> fila;
     private boolean ativo;
     private int totalClientesAtendidos = 0;
 
     public Guiche(int id) {
         this.id = id;
-        this.fila = new LinkedList<>();
+        this.fila = new Fila<>();
         this.ativo = true;
     }
 
     public void adicionarCliente(Cliente cliente) {
         if (cliente != null) {
-            fila.offer(cliente);
+            fila.enfileirar(cliente);
         }
     }
 
     public Cliente atenderCliente() {
-        Cliente cliente = fila.poll();
+        Cliente cliente = fila.desenfileirar();
         if (cliente != null) {
             totalClientesAtendidos++;
         }
         return cliente;
     }
 
-    public Queue<Cliente> getFila() {
+    public Fila<Cliente> getFila() {
         return fila;
     }
 
@@ -53,25 +53,42 @@ public class Guiche {
     }
 
     public int tamanhoFila() {
-        return fila.size();
+        return fila.tamanho();
     }
 
     public void ordenarFilaPorPrioridade() {
-        List<Cliente> listaTemporaria = new ArrayList<>(fila);
-        Collections.sort(listaTemporaria);
-        fila.clear();
-        fila.addAll(listaTemporaria);
+        if (fila.estaVazia()) {
+            return;
+        }
+
+        List<Cliente> clientesOrdenados = new ArrayList<>();
+        while (!fila.estaVazia()) {
+            clientesOrdenados.add(fila.desenfileirar());
+        }
+
+        Collections.sort(clientesOrdenados);
+
+        for (Cliente cliente : clientesOrdenados) {
+            fila.enfileirar(cliente);
+        }
     }
 
     @Override
     public String toString() {
+        StringBuilder clientesStr = new StringBuilder();
+        for (Cliente cliente : fila) {
+            clientesStr.append(cliente.toString()).append(", ");
+        }
+        if (!clientesStr.isEmpty()) {
+            clientesStr.setLength(clientesStr.length() - 2);
+        }
         return new StringBuilder()
                 .append("Guichê ")
                 .append(id)
                 .append(" (")
                 .append(ativo ? "Ativo" : "Pausado")
                 .append(") -> ")
-                .append(fila)
+                .append(clientesStr)
                 .toString();
     }
 }
