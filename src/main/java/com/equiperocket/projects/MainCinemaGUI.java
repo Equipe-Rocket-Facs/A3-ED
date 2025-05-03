@@ -35,8 +35,8 @@ public class MainCinemaGUI extends JFrame {
     private static final int LARGURA_JANELA = 1200;
     private static final int ALTURA_JANELA = 800;
     private static final int INTERVALO_ATUALIZACAO = 1000;
-    private static final int GUICHES_POR_LINHA = 4;
-    private static final Dimension TAMANHO_SCROLL_GUICHES = new Dimension(900, 100);
+    private static final int GUICHES_POR_LINHA = 4; // Mantemos este valor para organização visual
+    private static final Dimension TAMANHO_SCROLL_GUICHES = new Dimension(900, 200); // Aumentado a altura para acomodar mais linhas
     private static final Dimension TAMANHO_BOTAO_GUICHE = new Dimension(100, 30);
     private static final Dimension TAMANHO_INDICADOR_LEGENDA = new Dimension(20, 20);
     private static final Font FONTE_PADRAO = new Font("Arial", Font.PLAIN, 14);
@@ -211,12 +211,16 @@ public class MainCinemaGUI extends JFrame {
     }
 
     private JPanel criarPainelScrollGuiches(JPanel guichesPanel) {
+        // Configurar o painel de rolagem para garantir que todos os guichês sejam visíveis
         JScrollPane scrollPane = new JScrollPane(guichesPanel);
         scrollPane.setPreferredSize(TAMANHO_SCROLL_GUICHES);
         scrollPane.setBorder(null);
         scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-
+        
+        // Garantir que a rolagem funcione corretamente
+        scrollPane.getVerticalScrollBar().setUnitIncrement(16); // Melhora a velocidade de rolagem
+        
         JPanel wrapperPanel = new JPanel(new BorderLayout());
         wrapperPanel.setBackground(COR_FUNDO);
         wrapperPanel.add(scrollPane, BorderLayout.CENTER);
@@ -640,7 +644,7 @@ private void atualizarFilasVisuais() {
 
     private static String solicitarNumeroGuiches() {
         return JOptionPane.showInputDialog(null,
-                "Digite o número de guichês desejado de 1 a 4:",
+                "Digite o número de guichês desejado (de 1 a 9):",
                 "Configuração Inicial",
                 JOptionPane.QUESTION_MESSAGE);
     }
@@ -648,7 +652,7 @@ private void atualizarFilasVisuais() {
     private static boolean processarInputGuiches(String input) {
         try {
             int numeroGuiches = Integer.parseInt(input);
-            if (numeroGuiches >= 1 && numeroGuiches <= 4) {
+            if (numeroGuiches >= 1 && numeroGuiches <= 9) {
                 criarEExibirGUI(numeroGuiches);
                 return true; // Entrada válida, sair do loop
             } else {
@@ -672,7 +676,7 @@ private void atualizarFilasVisuais() {
 
     private static void mostrarErroNumeroGuiches() {
         JOptionPane.showMessageDialog(null,
-                "O número de guichês deve ser de 1 a 4!",
+                "O número de guichês deve ser de 1 a 9!",
                 "Erro",
                 JOptionPane.ERROR_MESSAGE);
     }
