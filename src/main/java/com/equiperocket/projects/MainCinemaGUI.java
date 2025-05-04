@@ -173,18 +173,38 @@ public class MainCinemaGUI extends JFrame {
 
     private void iniciarAtendimentoAutomatico() {
         try {
-            cinema.iniciarAtendimentoAutomatico(15);
+            int tempo = requisitarTempoAtendimento();
+            cinema.iniciarAtendimentoAutomatico(tempo);
             atualizarFilasVisuais();
             statusLabel.setForeground(Color.WHITE);
         } catch (Exception e) {
             mostrarErro("Erro ao iniciar atendimento automático", e.getMessage());
-            // Reverte o estado do botão caso ocorra erro
             atendimentoAutomaticoAtivo = false;
             atendimentoBtn.setText("Iniciar Atendimento");
             atendimentoBtn.setBackground(COR_SECUNDARIA);
         }
     }
 
+    private int requisitarTempoAtendimento(){
+        try {
+            String input = JOptionPane.showInputDialog(this,
+                    "Digite o intervalo de tempo em segundos para o atendimento automático (1-60):",
+                    "Configurar Atendimento",
+                    JOptionPane.QUESTION_MESSAGE);
+
+            int tempo = Integer.parseInt(input);
+            if (tempo < 1 || tempo > 60) {
+                throw new IllegalArgumentException("O tempo deve estar entre 1 e 60 segundos");
+            }
+            return tempo;
+        } catch (NumberFormatException e) {
+            mostrarErro("Erro ao iniciar atendimento automático", "Por favor, digite um número válido");
+            atendimentoAutomaticoAtivo = false;
+            atendimentoBtn.setText("Iniciar Atendimento");
+            atendimentoBtn.setBackground(COR_SECUNDARIA);
+            return -1;
+        }
+    }
     private void pararAtendimentoAutomatico() {
         try {
             cinema.pararAtendimentoAutomatico();
@@ -468,12 +488,36 @@ private void atualizarFilasVisuais() {
         try {
             JDialog dialog = criarDialogoAdicionarCliente();
             JPanel inputPanel = criarPainelInputCliente();
-            JComboBox<String> tipoCombo = criarComboBoxTipoCliente();
-            JButton confirmarBtn = criarBotaoConfirmarNovoCliente(dialog, tipoCombo);
-
-            inputPanel.add(new JLabel("Tipo de Cliente:") {{ setForeground(COR_TEXTO); }});
-            inputPanel.add(tipoCombo);
+            
+            // Campo para quantidade de clientes
+            JLabel quantidadeLabel = new JLabel("Quantidade de Clientes:");
+            quantidadeLabel.setForeground(COR_TEXTO);
+            inputPanel.add(quantidadeLabel);
+            
+            SpinnerNumberModel spinnerModel = new SpinnerNumberModel(1, 1, 50, 1);
+            JSpinner quantidadeSpinner = new JSpinner(spinnerModel);
+            quantidadeSpinner.setEditor(new JSpinner.NumberEditor(quantidadeSpinner, "#"));
+            inputPanel.add(quantidadeSpinner);
+            
+            // Adiciona aviso sobre o limite de clientes
+            JLabel avisoLabel = new JLabel("Atenção: Máximo de 50 clientes por vez!");
+            avisoLabel.setForeground(Color.YELLOW);
+            avisoLabel.setFont(new Font("Arial", Font.BOLD, 12));
+            inputPanel.add(avisoLabel);
+            
             inputPanel.add(Box.createVerticalStrut(10));
+            
+            // Tipo de cliente
+            JLabel tipoLabel = new JLabel("Tipo de Cliente:");
+            tipoLabel.setForeground(COR_TEXTO);
+            inputPanel.add(tipoLabel);
+            
+            JComboBox<String> tipoCombo = criarComboBoxTipoCliente();
+            inputPanel.add(tipoCombo);
+            
+            inputPanel.add(Box.createVerticalStrut(10));
+            
+            JButton confirmarBtn = criarBotaoConfirmarNovoCliente(dialog, tipoCombo, quantidadeSpinner);
             inputPanel.add(confirmarBtn);
 
             dialog.add(inputPanel, BorderLayout.CENTER);
@@ -500,21 +544,37 @@ private void atualizarFilasVisuais() {
     }
 
     private JComboBox<String> criarComboBoxTipoCliente() {
-        JComboBox<String> tipoCombo = new JComboBox<>(new String[]{"NORMAL", "IDOSO", "ESTUDANTE"});
+        JComboBox<String> tipoCombo = new JComboBox<>(new String[]{"NORMAL", "IDOSO", "ESTUDANTE", "RANDOM"});
         tipoCombo.setBackground(COR_SECUNDARIA);
         tipoCombo.setForeground(Color.BLACK);
         tipoCombo.setFont(FONTE_PADRAO);
         return tipoCombo;
     }
 
-    private JButton criarBotaoConfirmarNovoCliente(JDialog dialog, JComboBox<String> tipoCombo) {
+    private JButton criarBotaoConfirmarNovoCliente(JDialog dialog, JComboBox<String> tipoCombo, JSpinner quantidadeSpinner) {
         JButton confirmarBtn = criarBotaoEstilizado("Confirmar");
         confirmarBtn.addActionListener(e -> {
             try {
-                TipoClient tipo = TipoClient.valueOf((String) tipoCombo.getSelectedItem());
-                Cliente novoCliente = new Cliente(tipo);
-                cinema.adicionarCliente(novoCliente);
-                statusLabel.setText("Cliente adicionado com sucesso");
+                String tipoSelecionado = (String) tipoCombo.getSelectedItem();
+                int quantidade = (Integer) quantidadeSpinner.getValue();
+                
+                for (int i = 0; i < quantidade; i++) {
+                    Cliente novoCliente;
+                    
+                    if ("RANDOM".equals(tipoSelecionado)) {
+                        // Escolher um tipo aleatório entre NORMAL, IDOSO e ESTUDANTE
+                        TipoClient[] tipos = {TipoClient.NORMAL, TipoClient.IDOSO, TipoClient.ESTUDANTE};
+                        int indiceAleatorio = (int) (Math.random() * tipos.length);
+                        novoCliente = new Cliente(tipos[indiceAleatorio]);
+                    } else {
+                        TipoClient tipo = TipoClient.valueOf(tipoSelecionado);
+                        novoCliente = new Cliente(tipo);
+                    }
+                    
+                    cinema.adicionarCliente(novoCliente);
+                }
+                
+                statusLabel.setText(quantidade + " cliente(s) adicionado(s) com sucesso");
                 statusLabel.setForeground(Color.WHITE);
                 dialog.dispose();
             } catch (Exception ex) {
