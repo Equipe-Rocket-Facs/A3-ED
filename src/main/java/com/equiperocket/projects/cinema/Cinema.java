@@ -111,7 +111,7 @@ public class Cinema {
     public void iniciarAtendimentoAutomatico(long tempoMedioAtendimentoSegundos) {
         // Se já existe um executor rodando, para ele primeiro
         pararAtendimentoAutomatico();
-
+        long initialDelay = tempoMedioAtendimentoSegundos;
         executor = Executors.newScheduledThreadPool(guiches.size());
 
         for (Guiche guiche : guiches) {
@@ -123,7 +123,7 @@ public class Cinema {
                         System.out.println("[Auto] Guichê " + guiche.getId() + " atendeu: " + atendido);
                     }
                 }
-            }, 10, tempoMedioAtendimentoSegundos, TimeUnit.SECONDS);
+            }, initialDelay, tempoMedioAtendimentoSegundos, TimeUnit.SECONDS);
         }
     }
 
