@@ -37,11 +37,11 @@ public class AVLTreeVisualizerGUI {
         treePanel = new TreePanel();
         frame.add(treePanel, BorderLayout.CENTER);
 
-        JPanel controlPanel = new JPanel();
-        controlPanel.setLayout(new FlowLayout());
+        // Painel de botões
+        JPanel buttonPanel = new JPanel(new FlowLayout());
 
         inputField = new JTextField(10);
-        controlPanel.add(inputField);
+        buttonPanel.add(inputField);
 
         JButton insertButton = new JButton("Insert");
         insertButton.addActionListener(new ActionListener() {
@@ -50,7 +50,7 @@ public class AVLTreeVisualizerGUI {
                 insertValue();
             }
         });
-        controlPanel.add(insertButton);
+        buttonPanel.add(insertButton);
 
         JButton findButton = new JButton("Find");
         findButton.addActionListener(new ActionListener() {
@@ -59,7 +59,7 @@ public class AVLTreeVisualizerGUI {
                 findValue();
             }
         });
-        controlPanel.add(findButton);
+        buttonPanel.add(findButton);
 
         JButton removeButton = new JButton("Remove");
         removeButton.addActionListener(new ActionListener() {
@@ -68,7 +68,7 @@ public class AVLTreeVisualizerGUI {
                 removeValue();
             }
         });
-        controlPanel.add(removeButton);
+        buttonPanel.add(removeButton);
 
         JButton printInOrderButton = new JButton("Print In-Order");
         printInOrderButton.addActionListener(new ActionListener() {
@@ -77,7 +77,7 @@ public class AVLTreeVisualizerGUI {
                 printInOrder();
             }
         });
-        controlPanel.add(printInOrderButton);
+        buttonPanel.add(printInOrderButton);
 
         JButton printPreOrderButton = new JButton("Print Pre-Order");
         printPreOrderButton.addActionListener(new ActionListener() {
@@ -86,7 +86,7 @@ public class AVLTreeVisualizerGUI {
                 printPreOrder();
             }
         });
-        controlPanel.add(printPreOrderButton);
+        buttonPanel.add(printPreOrderButton);
 
         JButton printPostOrderButton = new JButton("Print Post-Order");
         printPostOrderButton.addActionListener(new ActionListener() {
@@ -95,9 +95,8 @@ public class AVLTreeVisualizerGUI {
                 printPostOrder();
             }
         });
-        controlPanel.add(printPostOrderButton);
+        buttonPanel.add(printPostOrderButton);
 
-        // Botão de Reset
         JButton resetButton = new JButton("Reset");
         resetButton.addActionListener(new ActionListener() {
             @Override
@@ -105,16 +104,23 @@ public class AVLTreeVisualizerGUI {
                 reset();
             }
         });
-        controlPanel.add(resetButton);
+        buttonPanel.add(resetButton);
 
-        outputArea = new JTextArea(10, 40); // Larger output area
+        // Área de saída com scroll
+        outputArea = new JTextArea(8, 80); // largura maior
         outputArea.setEditable(false);
         outputArea.setLineWrap(true);
         outputArea.setWrapStyleWord(true);
         JScrollPane scrollPane = new JScrollPane(outputArea);
-        controlPanel.add(scrollPane);
 
-        frame.add(controlPanel, BorderLayout.SOUTH);
+        // Painel inferior combinando botões e área de texto
+        JPanel bottomPanel = new JPanel();
+        bottomPanel.setLayout(new BorderLayout());
+        bottomPanel.add(buttonPanel, BorderLayout.NORTH);
+        bottomPanel.add(scrollPane, BorderLayout.CENTER);
+
+        frame.add(bottomPanel, BorderLayout.SOUTH);
+
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
     }
@@ -129,7 +135,7 @@ public class AVLTreeVisualizerGUI {
         try {
             int value = Integer.parseInt(inputField.getText());
             String rotations = tree.insert(value);
-            outputArea.append("Inserted: " + value + ", "+ rotations +"\n");
+            outputArea.append("Inserted: " + value + ", " + rotations + "\n");
             inputField.setText("");
             update();
         } catch (NumberFormatException e) {
@@ -182,14 +188,10 @@ public class AVLTreeVisualizerGUI {
         inputField.setText("");
     }
 
-    /**
-     * Updates the tree visualization.
-     */
-    public void update() {
-        if (treePanel != null) {
-            treePanel.repaint();
-        }
+    private void update() {
+        treePanel.repaint(); // Atualiza a visualização da árvore
     }
+
 
     /**
      * A custom panel that draws the AVL tree.
