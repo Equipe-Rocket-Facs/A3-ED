@@ -97,6 +97,16 @@ public class AVLTreeVisualizerGUI {
         });
         controlPanel.add(printPostOrderButton);
 
+        // Botão de Reset
+        JButton resetButton = new JButton("Reset");
+        resetButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                reset();
+            }
+        });
+        controlPanel.add(resetButton);
+
         outputArea = new JTextArea(10, 40); // Larger output area
         outputArea.setEditable(false);
         outputArea.setLineWrap(true);
@@ -107,6 +117,12 @@ public class AVLTreeVisualizerGUI {
         frame.add(controlPanel, BorderLayout.SOUTH);
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
+    }
+
+    private void reset() {
+        frame.dispose(); // Fecha a janela atual
+        AVLTree newTree = new AVLTree(); // Cria uma nova instância da árvore
+        new AVLTreeVisualizerGUI(newTree); // Inicia uma nova interface
     }
 
     private void insertValue() {
@@ -252,4 +268,3 @@ public class AVLTreeVisualizerGUI {
         }
     }
 }
-
