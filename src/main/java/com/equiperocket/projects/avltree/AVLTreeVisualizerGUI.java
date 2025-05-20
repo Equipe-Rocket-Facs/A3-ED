@@ -112,8 +112,8 @@ public class AVLTreeVisualizerGUI {
     private void insertValue() {
         try {
             int value = Integer.parseInt(inputField.getText());
-            tree.insert(value);
-            outputArea.append("Inserted: " + value + "\n");
+            String rotations = tree.insert(value);
+            outputArea.append("Inserted: " + value + ", "+ rotations +"\n");
             inputField.setText("");
             update();
         } catch (NumberFormatException e) {
@@ -141,8 +141,8 @@ public class AVLTreeVisualizerGUI {
     private void removeValue() {
         try {
             int value = Integer.parseInt(inputField.getText());
-            tree.remove(value);
-            outputArea.append("Removed: " + value + "\n");
+            String rotations = tree.remove(value);
+            outputArea.append("Removed: " + value + ", " + rotations + "\n");
             inputField.setText("");
             update();
         } catch (NumberFormatException e) {

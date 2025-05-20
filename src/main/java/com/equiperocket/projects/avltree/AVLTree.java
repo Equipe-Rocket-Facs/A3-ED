@@ -66,10 +66,10 @@ public class AVLTree implements Tree<Integer, AVLTree.Node> {
     }
 
     @Override
-    public void insert(Integer value) {
+    public String insert(Integer value) {
         rotationsCount = 0;
         root = insertRecursive(root, value);
-        System.out.printf("Rotations made in insertion: %d%n", rotationsCount);
+        return "Rotations made in insertion: " + rotationsCount;
     }
 
     private Node insertRecursive(Node node, Integer value) {
@@ -100,10 +100,10 @@ public class AVLTree implements Tree<Integer, AVLTree.Node> {
     }
 
     @Override
-    public void remove(Integer value) {
+    public String remove(Integer value) {
         rotationsCount = 0;
         root = deleteRecursive(root, value);
-        System.out.printf("Rotations made in removal: %d%n", rotationsCount);
+        return "Rotations made in removal: " + rotationsCount;
     }
 
     private Node deleteRecursive(Node node, Integer value) {

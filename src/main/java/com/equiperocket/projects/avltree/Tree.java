@@ -12,8 +12,9 @@ public interface Tree<T, E> {
      * Inserts a new value into the tree.
      *
      * @param value The value to insert
+     * @return
      */
-    void insert(T value);
+    String insert(T value);
 
     /**
      * Finds and returns an element in the tree based on the given value.
@@ -27,8 +28,9 @@ public interface Tree<T, E> {
      * Removes a value and its associated element from the tree.
      *
      * @param value The value to remove
+     * @return
      */
-    void remove(T value);
+    String remove(T value);
 
     /**
      * Performs an in-order traversal of the tree.
