@@ -141,6 +141,9 @@ public class AVLTreeVisualizerGUI {
         } catch (NumberFormatException e) {
             outputArea.append("Invalid input! Please enter an integer.\n");
             inputField.setText("");
+        }  catch (RuntimeException e) {
+            outputArea.append("Value is already in the tree.\n");
+            inputField.setText("");
         }
     }
 
@@ -158,6 +161,7 @@ public class AVLTreeVisualizerGUI {
             outputArea.append("Invalid input! Please enter an integer.\n");
             inputField.setText("");
         }
+
     }
 
     private void removeValue() {
@@ -169,6 +173,9 @@ public class AVLTreeVisualizerGUI {
             update();
         } catch (NumberFormatException e) {
             outputArea.append("Invalid input! Please enter an integer.\n");
+            inputField.setText("");
+        } catch (RuntimeException e) {
+            outputArea.append("Value not found in the tree.\n");
             inputField.setText("");
         }
     }

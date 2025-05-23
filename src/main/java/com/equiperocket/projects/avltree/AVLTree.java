@@ -71,16 +71,14 @@ public class AVLTree implements Tree<Integer, AVLTree.Node> {
         root = insertRecursive(root, value);
         return "Rotations made in insertion: " + rotationsCount;
     }
-
     private Node insertRecursive(Node node, Integer value) {
         if (isNodeEmpty(node)) return new Node(value);
-
         if (isValueLessThanNode(node, value)) {
             node.left = insertRecursive(node.left, value);
         } else if (isValueGreaterThanNode(node, value)) {
             node.right = insertRecursive(node.right, value);
         } else {
-            return node; // Number already exists
+            throw new RuntimeException("Value " + value + " already exists in the tree.");
         }
         return rebalance(node);
     }
@@ -107,7 +105,7 @@ public class AVLTree implements Tree<Integer, AVLTree.Node> {
     }
 
     private Node deleteRecursive(Node node, Integer value) {
-        if (isNodeEmpty(node)) return null;
+        if (isNodeEmpty(node)) throw new RuntimeException("Value " + value + " not found in the tree.");
 
         if (isValueLessThanNode(node, value)) {
             node.left = deleteRecursive(node.left, value);
