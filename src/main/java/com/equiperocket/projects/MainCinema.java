@@ -13,7 +13,7 @@ public class MainCinema {
             === Menu do Cinema ===
             1. Adicionar Cliente
             2. Pausar Guichê
-            3. Atender Cliente
+            3. Atendimento
             4. Exibir Filas
             5. Ativar Guichê
             0. Sair
@@ -95,7 +95,11 @@ public class MainCinema {
                     yield TipoClient.NORMAL;
                 }
             };
-            cinema.adicionarCliente(new Cliente(tipoCliente));
+            System.out.println("Digite a quantidade de clientes do tipo " + tipoCliente.toString() + " que deseja adicionar:");
+            int numeroClientes = lerInteiro();
+            for (int i = 0; i <= numeroClientes; i++ ) {
+                cinema.adicionarCliente(new Cliente(tipoCliente));
+            }
             System.out.println("Cliente adicionado com sucesso!");
         } catch (InputMismatchException e) {
             System.out.println("Tipo inválido! Cliente não foi adicionado.");
@@ -116,10 +120,31 @@ public class MainCinema {
 
     private static void atenderCliente() {
         try {
-            System.out.println("ID do guichê para atender:");
-            int id = lerInteiro();
-            cinema.atenderCliente(id);
-            System.out.println("Cliente atendido no guichê " + id);
+            int opcaoAtendimento;
+            do {
+                System.out.println("1- Atender cliente");
+                System.out.println("2- Iniciar atendimento automático");
+                System.out.println("3- Parar atendimento automático");
+                opcaoAtendimento = lerInteiro();
+
+                switch (opcaoAtendimento) {
+                    case 1:
+                        System.out.println("ID do guichê para atender:");
+                        int id = lerInteiro();
+                        cinema.atenderCliente(id);
+                        System.out.println("Cliente atendido no guichê " + id);
+                        return;
+                    case 2:
+                        System.out.println("Digite o tempo de atendimento(em segundos):");
+                        int tempoAtendimento = lerInteiro();
+                        cinema.iniciarAtendimentoAutomatico(tempoAtendimento);
+                        return;
+                    case 3:
+                        cinema.pararAtendimentoAutomatico();
+                        System.out.println("O atendimento automático foi parado");
+                }
+
+            } while (opcaoAtendimento != 0);
         } catch (Exception e) {
             System.out.println("Erro ao atender cliente: " + e.getMessage());
         }
