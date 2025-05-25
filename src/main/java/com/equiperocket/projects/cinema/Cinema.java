@@ -11,7 +11,7 @@ import java.util.concurrent.TimeUnit;
 
 public class Cinema {
     private final List<Guiche> guiches;
-    private boolean[] guichesPausados;
+    private final boolean[] guichesPausados;
     private ScheduledExecutorService executor;
 
     public Cinema(int n) {
@@ -52,7 +52,6 @@ public class Cinema {
             throw new RuntimeException("Guiche está em pausa");
         }
 
-        // Verifica se há apenas 1 guichê ativo
         long guichesAtivos = guiches.stream()
                 .filter(Guiche::isAtivo)
                 .count();
@@ -109,7 +108,6 @@ public class Cinema {
     }
 
     public void iniciarAtendimentoAutomatico(long tempoMedioAtendimentoSegundos) {
-        // Se já existe um executor rodando, para ele primeiro
         pararAtendimentoAutomatico();
         long initialDelay = tempoMedioAtendimentoSegundos;
         executor = Executors.newScheduledThreadPool(guiches.size());
@@ -130,18 +128,13 @@ public class Cinema {
     public void pararAtendimentoAutomatico() {
         if (executor != null && !executor.isShutdown()) {
             try {
-                // Tenta parar graciosamente primeiro
                 executor.shutdown();
-
-                // Espera até 3 segundos para as tarefas terminarem
                 if (!executor.awaitTermination(3, TimeUnit.SECONDS)) {
-                    // Se não terminaram, força a parada
                     executor.shutdownNow();
                 }
             } catch (InterruptedException e) {
-                // Se for interrompido, força a parada
                 executor.shutdownNow();
-                Thread.currentThread().interrupt(); // Preserva o status de interrupção
+                Thread.currentThread().interrupt();
             }
         }
     }
@@ -162,7 +155,6 @@ public class Cinema {
         return todasFilas;
     }
 
-    // Método para obter uma fila específica de um guichê
     public Fila<Cliente> getFila(int index) {
         if (index >= 0 && index < guiches.size()) {
             return guiches.get(index).getFila();
