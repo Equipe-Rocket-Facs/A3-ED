@@ -4,12 +4,12 @@ import com.equiperocket.projects.cinema.Cinema;
 import com.equiperocket.projects.cinema.Cliente;
 import com.equiperocket.projects.cinema.Fila;
 import com.equiperocket.projects.cinema.TipoClient;
+import com.formdev.flatlaf.FlatIntelliJLaf;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.List;
-import java.util.Queue;
 
 public class MainCinemaGUI extends JFrame {
     // Core components
@@ -35,8 +35,8 @@ public class MainCinemaGUI extends JFrame {
     private static final int LARGURA_JANELA = 1200;
     private static final int ALTURA_JANELA = 800;
     private static final int INTERVALO_ATUALIZACAO = 1000;
-    private static final int GUICHES_POR_LINHA = 4; // Mantemos este valor para organização visual
-    private static final Dimension TAMANHO_SCROLL_GUICHES = new Dimension(900, 200); // Aumentado a altura para acomodar mais linhas
+    private static final int GUICHES_POR_LINHA = 4;
+    private static final Dimension TAMANHO_SCROLL_GUICHES = new Dimension(900, 200);
     private static final Dimension TAMANHO_BOTAO_GUICHE = new Dimension(100, 30);
     private static final Dimension TAMANHO_INDICADOR_LEGENDA = new Dimension(20, 20);
     private static final Font FONTE_PADRAO = new Font("Arial", Font.PLAIN, 14);
@@ -63,8 +63,8 @@ public class MainCinemaGUI extends JFrame {
         JPanel topPanel = criarPainelSuperior();
         JPanel guichesPanel = criarPainelGuiches();
 
-        inicializarStatusLabel(); // Inicializa statusLabel primeiro
-        inicializarPainelFilas(); // Depois inicializa as filas que podem usar statusLabel
+        inicializarStatusLabel();
+        inicializarPainelFilas();
 
         topPanel.add(guichesPanel, BorderLayout.CENTER);
         mainPanel.add(topPanel, BorderLayout.NORTH);
@@ -185,7 +185,7 @@ public class MainCinemaGUI extends JFrame {
         }
     }
 
-    private int requisitarTempoAtendimento(){
+    private int requisitarTempoAtendimento() {
         try {
             String input = JOptionPane.showInputDialog(this,
                     "Digite o intervalo de tempo em segundos para o atendimento automático (1-60):",
@@ -205,13 +205,13 @@ public class MainCinemaGUI extends JFrame {
             return -1;
         }
     }
+
     private void pararAtendimentoAutomatico() {
         try {
             cinema.pararAtendimentoAutomatico();
             statusLabel.setForeground(Color.WHITE);
         } catch (Exception e) {
             mostrarErro("Erro ao parar atendimento automático", e.getMessage());
-            // Mantém o estado atual em caso de erro
         }
     }
 
@@ -231,16 +231,13 @@ public class MainCinemaGUI extends JFrame {
     }
 
     private JPanel criarPainelScrollGuiches(JPanel guichesPanel) {
-        // Configurar o painel de rolagem para garantir que todos os guichês sejam visíveis
         JScrollPane scrollPane = new JScrollPane(guichesPanel);
         scrollPane.setPreferredSize(TAMANHO_SCROLL_GUICHES);
         scrollPane.setBorder(null);
         scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-        
-        // Garantir que a rolagem funcione corretamente
-        scrollPane.getVerticalScrollBar().setUnitIncrement(16); // Melhora a velocidade de rolagem
-        
+        scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+
         JPanel wrapperPanel = new JPanel(new BorderLayout());
         wrapperPanel.setBackground(COR_FUNDO);
         wrapperPanel.add(scrollPane, BorderLayout.CENTER);
@@ -298,7 +295,6 @@ public class MainCinemaGUI extends JFrame {
             statusLabel.setForeground(Color.WHITE);
         } catch (Exception e) {
             mostrarErro("Erro ao pausar guichê", e.getMessage());
-            // Reverte o estado do botão caso ocorra erro
             pauseButton.setText("Pausar");
             pauseButton.setBackground(COR_SECUNDARIA);
         }
@@ -313,13 +309,12 @@ public class MainCinemaGUI extends JFrame {
             statusLabel.setForeground(Color.WHITE);
         } catch (Exception e) {
             mostrarErro("Erro ao retomar guichê", e.getMessage());
-            // Reverte o estado do botão caso ocorra erro
             pauseButton.setText("Retomar");
             pauseButton.setBackground(COR_BOTAO_PARAR);
         }
     }
 
-private void atualizarFilasVisuais() {
+    private void atualizarFilasVisuais() {
         try {
             filasPanel.removeAll();
             List<Fila<Cliente>> filasDoCinema = cinema.getFilas();
@@ -330,8 +325,7 @@ private void atualizarFilasVisuais() {
             adicionarLegenda();
             filasPanel.revalidate();
             filasPanel.repaint();
-            
-            // Se chegou aqui sem erros, podemos resetar a cor do statusLabel caso esteja em vermelho
+
             if (statusLabel.getForeground().equals(Color.RED)) {
                 statusLabel.setForeground(Color.WHITE);
             }
@@ -488,35 +482,25 @@ private void atualizarFilasVisuais() {
         try {
             JDialog dialog = criarDialogoAdicionarCliente();
             JPanel inputPanel = criarPainelInputCliente();
-            
+
             // Campo para quantidade de clientes
             JLabel quantidadeLabel = new JLabel("Quantidade de Clientes:");
             quantidadeLabel.setForeground(COR_TEXTO);
             inputPanel.add(quantidadeLabel);
-            
-            SpinnerNumberModel spinnerModel = new SpinnerNumberModel(1, 1, 50, 1);
+
+            SpinnerNumberModel spinnerModel = new SpinnerNumberModel(1, 1, 200, 1);
             JSpinner quantidadeSpinner = new JSpinner(spinnerModel);
             quantidadeSpinner.setEditor(new JSpinner.NumberEditor(quantidadeSpinner, "#"));
             inputPanel.add(quantidadeSpinner);
-            
-            // Adiciona aviso sobre o limite de clientes
-            JLabel avisoLabel = new JLabel("Atenção: Máximo de 50 clientes por vez!");
-            avisoLabel.setForeground(Color.YELLOW);
-            avisoLabel.setFont(new Font("Arial", Font.BOLD, 12));
-            inputPanel.add(avisoLabel);
-            
-            inputPanel.add(Box.createVerticalStrut(10));
-            
+
             // Tipo de cliente
             JLabel tipoLabel = new JLabel("Tipo de Cliente:");
             tipoLabel.setForeground(COR_TEXTO);
             inputPanel.add(tipoLabel);
-            
+
             JComboBox<String> tipoCombo = criarComboBoxTipoCliente();
             inputPanel.add(tipoCombo);
-            
-            inputPanel.add(Box.createVerticalStrut(10));
-            
+
             JButton confirmarBtn = criarBotaoConfirmarNovoCliente(dialog, tipoCombo, quantidadeSpinner);
             inputPanel.add(confirmarBtn);
 
@@ -557,12 +541,11 @@ private void atualizarFilasVisuais() {
             try {
                 String tipoSelecionado = (String) tipoCombo.getSelectedItem();
                 int quantidade = (Integer) quantidadeSpinner.getValue();
-                
+
                 for (int i = 0; i < quantidade; i++) {
                     Cliente novoCliente;
-                    
+
                     if ("RANDOM".equals(tipoSelecionado)) {
-                        // Escolher um tipo aleatório entre NORMAL, IDOSO e ESTUDANTE
                         TipoClient[] tipos = {TipoClient.NORMAL, TipoClient.IDOSO, TipoClient.ESTUDANTE};
                         int indiceAleatorio = (int) (Math.random() * tipos.length);
                         novoCliente = new Cliente(tipos[indiceAleatorio]);
@@ -570,16 +553,15 @@ private void atualizarFilasVisuais() {
                         TipoClient tipo = TipoClient.valueOf(tipoSelecionado);
                         novoCliente = new Cliente(tipo);
                     }
-                    
+
                     cinema.adicionarCliente(novoCliente);
                 }
-                
+
                 statusLabel.setText(quantidade + " cliente(s) adicionado(s) com sucesso");
                 statusLabel.setForeground(Color.WHITE);
                 dialog.dispose();
             } catch (Exception ex) {
                 mostrarErro("Erro ao adicionar cliente", ex.getMessage());
-                // Não fecha o diálogo em caso de erro para permitir nova tentativa
             }
         });
         return confirmarBtn;
@@ -616,12 +598,11 @@ private void atualizarFilasVisuais() {
     private void adicionarEstatisticas(JPanel statsPanel) {
         try {
             adicionarEstatistica(statsPanel, "Total de clientes atendidos: ",
-                String.valueOf(cinema.getTotalClientesAtendidos()));
+                    String.valueOf(cinema.getTotalClientesAtendidos()));
             adicionarEstatistica(statsPanel, "Tempo médio de espera: ", "20 segundos");
             adicionarEstatistica(statsPanel, "Clientes na fila: ",
-                String.valueOf(cinema.getTotalClientesNasFilas()));
+                    String.valueOf(cinema.getTotalClientesNasFilas()));
         } catch (Exception e) {
-            // Adiciona uma mensagem de erro ao painel de estatísticas
             JLabel erroLabel = new JLabel("Erro ao carregar estatísticas: " + e.getMessage());
             erroLabel.setForeground(Color.RED);
             statsPanel.add(erroLabel);
@@ -649,26 +630,18 @@ private void atualizarFilasVisuais() {
         componente.setForeground(Color.WHITE);
         componente.setFont(FONTE_PADRAO);
     }
-    
-    /**
-     * Exibe uma mensagem de erro para o usuário
-     * @param titulo Título da janela de erro
-     * @param mensagem Mensagem de erro a ser exibida
-     */
+
     private void mostrarErro(String titulo, String mensagem) {
-        // Exibe o diálogo de erro
         JOptionPane.showMessageDialog(this,
                 mensagem,
                 titulo,
                 JOptionPane.ERROR_MESSAGE);
-                
-        // Também atualiza o statusLabel para indicar o erro (se já estiver inicializado)
+
         if (statusLabel != null) {
             statusLabel.setText("ERRO: " + mensagem);
             statusLabel.setForeground(Color.RED);
         }
-        
-        // Imprime o erro no console para debug
+
         System.err.println(titulo + ": " + mensagem);
     }
 
@@ -679,7 +652,7 @@ private void atualizarFilasVisuais() {
 
     private static void configurarLookAndFeel() {
         try {
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+            UIManager.setLookAndFeel(new FlatIntelliJLaf());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -687,24 +660,22 @@ private void atualizarFilasVisuais() {
 
     private static void iniciarAplicacao() {
         boolean entradaValida = false;
-        
+
         while (!entradaValida) {
             String input = solicitarNumeroGuiches();
-            
-            // Se o usuário cancelar o diálogo, sair do loop
+
             if (input == null) {
                 System.exit(0);
                 return;
             }
-            
-            // Tentar processar a entrada
+
             entradaValida = processarInputGuiches(input);
         }
     }
 
     private static String solicitarNumeroGuiches() {
         return JOptionPane.showInputDialog(null,
-                "Digite o número de guichês desejado (de 1 a 9):",
+                "Digite o número de guichês desejado (de 1 a 8):",
                 "Configuração Inicial",
                 JOptionPane.QUESTION_MESSAGE);
     }
@@ -712,16 +683,16 @@ private void atualizarFilasVisuais() {
     private static boolean processarInputGuiches(String input) {
         try {
             int numeroGuiches = Integer.parseInt(input);
-            if (numeroGuiches >= 1 && numeroGuiches <= 9) {
+            if (numeroGuiches >= 1 && numeroGuiches <= 8) {
                 criarEExibirGUI(numeroGuiches);
-                return true; // Entrada válida, sair do loop
+                return true;
             } else {
                 mostrarErroNumeroGuiches();
-                return false; // Entrada inválida, continuar no loop
+                return false;
             }
         } catch (NumberFormatException e) {
             mostrarErroFormatoInvalido();
-            return false; // Entrada inválida, continuar no loop
+            return false;
         }
     }
 
@@ -736,7 +707,7 @@ private void atualizarFilasVisuais() {
 
     private static void mostrarErroNumeroGuiches() {
         JOptionPane.showMessageDialog(null,
-                "O número de guichês deve ser de 1 a 9!",
+                "O número de guichês deve ser de 1 a 8!",
                 "Erro",
                 JOptionPane.ERROR_MESSAGE);
     }
