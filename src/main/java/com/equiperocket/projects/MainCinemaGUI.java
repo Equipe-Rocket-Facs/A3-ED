@@ -33,8 +33,11 @@ public class MainCinemaGUI extends JFrame {
         mainPanel.setBackground(UIUtils.COR_FUNDO);
         mainPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-        JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
+        JPanel topPanel = new JPanel(new GridBagLayout());
         topPanel.setBackground(UIUtils.COR_FUNDO);
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.insets = new Insets(5, 5, 5, 5);
 
         JButton addClienteBtn = UIUtils.criarBotaoEstilizado("Adicionar Cliente");
         atendimentoBtn = UIUtils.criarBotaoEstilizado("Iniciar Atendimento");
@@ -44,22 +47,39 @@ public class MainCinemaGUI extends JFrame {
         atendimentoBtn.addActionListener(e -> toggleAtendimentoAutomatico());
         estatisticasBtn.addActionListener(e -> mostrarEstatisticas());
 
-        JScrollPane guichesScroll = new JScrollPane(new GuichesPanel(cinema, getStatusLabel(), this::atualizarFilasVisuais));
-        guichesScroll.setPreferredSize(new Dimension(900, 200));
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.weightx = 0.1;
+        topPanel.add(addClienteBtn, gbc);
+
+        gbc.gridx = 1;
+        gbc.weightx = 0.1;
+        topPanel.add(atendimentoBtn, gbc);
+
+        gbc.gridx = 2;
+        gbc.weightx = 0.1;
+        topPanel.add(estatisticasBtn, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        gbc.gridwidth = 3;
+        gbc.weightx = 1.0;
+        gbc.weighty = 0.4;
+        gbc.fill = GridBagConstraints.BOTH;
+
+        GuichesPanel guichesPanel = new GuichesPanel(cinema, getStatusLabel(), this::atualizarFilasVisuais);
+        JScrollPane guichesScroll = new JScrollPane(guichesPanel);
         guichesScroll.setBorder(null);
         guichesScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         guichesScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         guichesScroll.getVerticalScrollBar().setUnitIncrement(16);
-
-        topPanel.add(guichesScroll);
-        topPanel.add(addClienteBtn);
-        topPanel.add(atendimentoBtn);
-        topPanel.add(estatisticasBtn);
+        topPanel.add(guichesScroll, gbc);
 
         filasPanel = new FilasPanel(cinema);
 
         mainPanel.add(topPanel, BorderLayout.NORTH);
         mainPanel.add(filasPanel, BorderLayout.CENTER);
+
         mainPanel.add(getStatusLabel(), BorderLayout.SOUTH);
 
         add(mainPanel);
@@ -71,6 +91,7 @@ public class MainCinemaGUI extends JFrame {
             statusLabel.setBackground(UIUtils.COR_SECUNDARIA);
             statusLabel.setForeground(Color.WHITE);
             statusLabel.setFont(UIUtils.FONTE_PADRAO);
+            statusLabel.setOpaque(true);
         }
         return statusLabel;
     }
@@ -113,7 +134,7 @@ public class MainCinemaGUI extends JFrame {
     }
 
     private void atualizarFilasVisuais() {
-        filasPanel.atualizar();
+        filasPanel.atualizarSeNecessario();
         if (statusLabel.getForeground().equals(Color.RED)) {
             statusLabel.setForeground(Color.WHITE);
         }
@@ -180,7 +201,7 @@ public class MainCinemaGUI extends JFrame {
 
     private static String solicitarNumeroGuiches() {
         return JOptionPane.showInputDialog(null,
-                "Digite o número de guichês desejado (de 1 a 8):",
+                "Digite o número de guichês desejado (de 1 a 20):",
                 "Configuração Inicial",
                 JOptionPane.QUESTION_MESSAGE
         );
@@ -189,7 +210,7 @@ public class MainCinemaGUI extends JFrame {
     private static boolean processarInputGuiches(String input) {
         try {
             int numeroGuiches = Integer.parseInt(input);
-            if (numeroGuiches >= 1 && numeroGuiches <= 8) {
+            if (numeroGuiches >= 1 && numeroGuiches <= 20) {
                 criarEExibirGUI(numeroGuiches);
                 return true;
             } else {
@@ -213,7 +234,7 @@ public class MainCinemaGUI extends JFrame {
 
     private static void mostrarErroNumeroGuiches() {
         JOptionPane.showMessageDialog(null,
-                "O número de guichês deve ser de 1 a 8!",
+                "O número de guichês deve ser de 1 a 20!",
                 "Erro",
                 JOptionPane.ERROR_MESSAGE);
     }
