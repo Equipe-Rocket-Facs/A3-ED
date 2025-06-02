@@ -10,7 +10,7 @@ public class AVLTree implements Tree<Integer, AVLTree.Node> {
         rotationsCount = 0;
     }
 
-    protected Node getRoot() {
+    public Node getRoot() {
         return root;
     }
 
@@ -47,16 +47,14 @@ public class AVLTree implements Tree<Integer, AVLTree.Node> {
         // and not positive (un)balance in right subtree requires double rotation.
         // The same happens with negative unbalance in root tree. If the left
         // subtree doesn't have a negative (un)balance too, we rotate two times.
-        if (isUnbalancePositive(balance)) {
-            int rightBalance = Node.balanceFactor(node.right);
-            if (!isBalanceFactorPositive(rightBalance)) {
+        if (balance > 1) {
+            if (Node.balanceFactor(node.right) < 0) {
                 // Rotation necessary to allow balance (RL -> Right Rotation and Left Rotation)
                 node.right = rotateRight(node.right);
             }
             node = rotateLeft(node);
-        } else if (isUnbalanceNegative(balance)) {
-            int leftBalance = Node.balanceFactor(node.left);
-            if (!isBalanceFactorNegative(leftBalance)) {
+        } else if (balance < -1) {
+            if (Node.balanceFactor(node.left) > 0) {
                 // Rotation necessary to allow balance (LR -> Left Rotation and Right Rotation)
                 node.left = rotateLeft(node.left);
             }
@@ -66,20 +64,23 @@ public class AVLTree implements Tree<Integer, AVLTree.Node> {
     }
 
     @Override
-    public String insert(Integer value) {
+    public String insert(Integer value) throws RuntimeException {
         rotationsCount = 0;
         root = insertRecursive(root, value);
         return "Rotations made in insertion: " + rotationsCount;
     }
+
     private Node insertRecursive(Node node, Integer value) {
-        if (isNodeEmpty(node)) return new Node(value);
-        if (isValueLessThanNode(node, value)) {
+        if (node == null) return new Node(value);
+
+        if (value < node.value) {
             node.left = insertRecursive(node.left, value);
-        } else if (isValueGreaterThanNode(node, value)) {
+        } else if (value > node.value) {
             node.right = insertRecursive(node.right, value);
         } else {
-            throw new RuntimeException("Value " + value + " already exists in the tree.");
+            throw new RuntimeException(String.format("Value %d already exists in the tree!", value));
         }
+
         return rebalance(node);
     }
 
@@ -89,36 +90,39 @@ public class AVLTree implements Tree<Integer, AVLTree.Node> {
     }
 
     private Node findRecursive(Node node, Integer value) {
-        if (isNodeEmpty(node)) return null;
-        if (isValueEqualToNode(node, value)) return node;
+        if (node == null) return null;
+        if (value.equals(node.value)) return node;
 
-        return isValueLessThanNode(node, value)
+        return value < node.value
                 ? findRecursive(node.left, value)
                 : findRecursive(node.right, value);
     }
 
     @Override
-    public String remove(Integer value) {
+    public String remove(Integer value) throws RuntimeException {
         rotationsCount = 0;
         root = deleteRecursive(root, value);
         return "Rotations made in removal: " + rotationsCount;
     }
 
     private Node deleteRecursive(Node node, Integer value) {
-        if (isNodeEmpty(node)) throw new RuntimeException("Value " + value + " not found in the tree.");
+        if (node == null) {
+            throw new RuntimeException(String.format("Value %d not found in the tree!", value));
+        }
 
-        if (isValueLessThanNode(node, value)) {
+        if (value < node.value) {
             node.left = deleteRecursive(node.left, value);
-        } else if (isValueGreaterThanNode(node, value)) {
+        } else if (value > node.value) {
             node.right = deleteRecursive(node.right, value);
         } else {
-            if (isNodeEmpty(node.left) || isNodeEmpty(node.right)) {
-                node = isNodeEmpty(node.left) ? node.right : node.left;
+            if (node.left == null || node.right == null) {
+                node = node.left == null ? node.right : node.left;
             } else {
                 node = reorganizeSubTree(node); // In case of 2 children
             }
         }
-        node = !isNodeEmpty(node) ? rebalance(node) : null;
+
+        node = node != null ? rebalance(node) : null;
         return node;
     }
 
@@ -133,7 +137,7 @@ public class AVLTree implements Tree<Integer, AVLTree.Node> {
     }
 
     private Node mostLeftChild(Node node) {
-        return isNodeEmpty(node.left) ? node : mostLeftChild(node.left);
+        return node.left == null ? node : mostLeftChild(node.left);
     }
 
     @Override
@@ -144,7 +148,7 @@ public class AVLTree implements Tree<Integer, AVLTree.Node> {
     }
 
     private StringBuilder traverseInOrder(Node node, StringBuilder sb) {
-        if (!isNodeEmpty(node)) {
+        if (node != null) {
             traverseInOrder(node.left, sb);
             sb.append(String.format("%d ", node.value));
             traverseInOrder(node.right, sb);
@@ -160,7 +164,7 @@ public class AVLTree implements Tree<Integer, AVLTree.Node> {
     }
 
     private StringBuilder traversePreOrder(Node node, StringBuilder sb) {
-        if (!isNodeEmpty(node)) {
+        if (node != null) {
             sb.append(String.format("%d ", node.value));
             traversePreOrder(node.left, sb);
             traversePreOrder(node.right, sb);
@@ -176,44 +180,12 @@ public class AVLTree implements Tree<Integer, AVLTree.Node> {
     }
 
     private StringBuilder traversePostOrder(Node node, StringBuilder sb) {
-        if (!isNodeEmpty(node)) {
+        if (node != null) {
             traversePostOrder(node.left, sb);
             traversePostOrder(node.right, sb);
             sb.append(String.format("%d ", node.value));
         }
         return sb;
-    }
-
-    private boolean isUnbalancePositive(int balance) {
-        return balance > 1;
-    }
-
-    private boolean isUnbalanceNegative(int balance) {
-        return balance < -1;
-    }
-
-    private boolean isBalanceFactorPositive(int balance) {
-        return balance >= 0;
-    }
-
-    private boolean isBalanceFactorNegative(int balance) {
-        return balance <= 0;
-    }
-
-    private boolean isNodeEmpty(Node node) {
-        return node == null;
-    }
-
-    private boolean isValueEqualToNode(Node node, Integer value) {
-        return value.equals(node.value);
-    }
-
-    private boolean isValueLessThanNode(Node node, Integer value) {
-        return value < node.value;
-    }
-
-    private boolean isValueGreaterThanNode(Node node, Integer value) {
-        return value > node.value;
     }
 
     protected class Node {

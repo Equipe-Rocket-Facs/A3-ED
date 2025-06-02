@@ -1,7 +1,6 @@
 package com.equiperocket.projects;
 
 import com.equiperocket.projects.avltree.AVLTree;
-import com.equiperocket.projects.avltree.AVLTreeVisualizer;
 import com.equiperocket.projects.avltree.Tree;
 
 import java.util.Scanner;
@@ -16,8 +15,6 @@ public class MainAVLTree {
 
     private static void processMenuOperations() {
         AVLTree tree = new AVLTree();
-        AVLTreeVisualizer visualizer = new AVLTreeVisualizer(tree);
-        visualizer.show();
 
         do {
             System.out.println("1. Insert");
@@ -32,26 +29,21 @@ public class MainAVLTree {
             switch (option) {
                 case 1:
                     System.out.print("Enter the value to insert: ");
-                    tree.insert(readInteger());
-                    visualizer.update();
+                    System.out.println(processInsertOp(tree));
                     break;
                 case 2:
                     System.out.print("Enter the value to find: ");
-                    var node = tree.find(readInteger());
-                    System.out.println(node);
+                    System.out.println(tree.find(readInteger()));
                     break;
                 case 3:
                     System.out.print("Enter the value to remove: ");
-                    tree.remove(readInteger());
-                    visualizer.update();
+                    System.out.println(processRemoveOp(tree));
                     break;
                 case 4:
                     processPrintMenu(tree);
                     break;
                 case 5:
                     tree = new AVLTree();
-                    visualizer = new AVLTreeVisualizer(tree);
-                    visualizer.show();
                     break;
                 case 6:
                     sc.close();
@@ -60,6 +52,22 @@ public class MainAVLTree {
                     System.out.println("Invalid option!");
             }
         } while (true);
+    }
+
+    private static String processInsertOp(Tree tree) {
+        try {
+            return tree.insert(readInteger());
+        } catch (RuntimeException e) {
+            return e.getMessage();
+        }
+    }
+
+    private static String processRemoveOp(Tree tree) {
+        try {
+            return tree.remove(readInteger());
+        } catch (RuntimeException e) {
+            return e.getMessage();
+        }
     }
 
     private static void processPrintMenu(Tree tree) {

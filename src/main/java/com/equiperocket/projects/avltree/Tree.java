@@ -10,11 +10,13 @@ public interface Tree<T, E> {
 
     /**
      * Inserts a new value into the tree.
+     * If the value already exists, an exception is thrown.
      *
      * @param value The value to insert
-     * @return
+     * @return A string representation of the inserted element
+     * @throws RuntimeException If the value already exists in the tree
      */
-    String insert(T value);
+    String insert(T value) throws RuntimeException;
 
     /**
      * Finds and returns an element in the tree based on the given value.
@@ -26,11 +28,13 @@ public interface Tree<T, E> {
 
     /**
      * Removes a value and its associated element from the tree.
+     * If the value is not found, an exception is thrown.
      *
      * @param value The value to remove
-     * @return
+     * @return A string representation of the removed element
+     * @throws RuntimeException If the value is not found in the tree
      */
-    String remove(T value);
+    String remove(T value) throws RuntimeException;
 
     /**
      * Performs an in-order traversal of the tree.
