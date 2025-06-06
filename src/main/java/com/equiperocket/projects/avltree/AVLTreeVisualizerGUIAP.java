@@ -2,17 +2,13 @@ package com.equiperocket.projects.avltree;
 
 import com.formdev.flatlaf.FlatIntelliJLaf;
 import com.formdev.flatlaf.FlatDarkLaf;
-import org.jfree.chart.ChartFactory;
-import org.jfree.chart.ChartPanel;
-import org.jfree.chart.JFreeChart;
-import org.jfree.data.category.DefaultCategoryDataset;
-
 import javax.swing.*;
 import javax.swing.Timer;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
+import java.util.List;
 import java.util.Stack;
 
 public class AVLTreeVisualizerGUIAP {
@@ -23,7 +19,6 @@ public class AVLTreeVisualizerGUIAP {
     private JTextArea outputArea;
     private JTabbedPane tabbedPane;
     private Color accentColor = new Color(0x1E88E5);
-    private final Color accentNodeShadow = new Color(0x5C6BC0);
     private int lastAccessed = Integer.MIN_VALUE;
     private JPanel headerPanel;
     private String currentTheme = "light";
@@ -64,15 +59,7 @@ public class AVLTreeVisualizerGUIAP {
         logo.setFont(new Font("JetBrains Mono", Font.BOLD, 32));
         logo.setForeground(Color.white);
 
-        JButton themeBtn = new JButton("🌙");
-        themeBtn.setToolTipText("Alternar tema (claro/escuro)");
-        themeBtn.setFocusPainted(false);
-        themeBtn.setBackground(Color.white);
-        themeBtn.addActionListener(e -> {
-            if (currentTheme.equals("dark")) setTheme("light");
-            else setTheme("dark");
-            SwingUtilities.updateComponentTreeUI(frame);
-        });
+        // Removed theme toggle button as requested
 
         JButton helpBtn = new JButton("❓");
         helpBtn.setToolTipText("Ajuda sobre comandos e atalhos");
@@ -82,7 +69,6 @@ public class AVLTreeVisualizerGUIAP {
 
         JPanel btnBox = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
         btnBox.setOpaque(false);
-        btnBox.add(themeBtn);
         btnBox.add(helpBtn);
 
         headerPanel.add(logo, BorderLayout.WEST);
@@ -97,50 +83,59 @@ public class AVLTreeVisualizerGUIAP {
         tabbedPane.addTab("🌳 Árvore", treePanel);
         tabbedPane.setMnemonicAt(0, KeyEvent.VK_A);
 
-        tabbedPane.addTab("📊 Estatísticas", createStatsPanel());
-        tabbedPane.setMnemonicAt(1, KeyEvent.VK_E);
-
         frame.add(tabbedPane, BorderLayout.CENTER);
 
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        // WrapLayout for button panel for responsiveness
+        JPanel buttonPanel = new JPanel(new WrapLayout(FlowLayout.LEFT, 12, 8));
         buttonPanel.setBorder(new EmptyBorder(12, 0, 8, 0));
         Font btnFont = new Font(Font.SANS_SERIF, Font.BOLD, 17);
 
         inputField = new JTextField(7);
         inputField.setFont(btnFont.deriveFont(18f));
         inputField.setToolTipText("Digite o número aqui...");
+        inputField.setMaximumSize(new Dimension(150, 40));
+        inputField.setPreferredSize(new Dimension(150, 40));
         buttonPanel.add(inputField);
 
         JButton insertBtn = createButton("➕ Inserir", btnFont, accentColor, e -> insertValue());
         insertBtn.setToolTipText("Inserir valor (Enter também funciona)");
+        insertBtn.setPreferredSize(new Dimension(120, 40));
         buttonPanel.add(insertBtn);
 
         JButton findBtn = createButton("🔍 Buscar", btnFont, accentColor, e -> findValue());
         findBtn.setToolTipText("Buscar valor na árvore");
+        findBtn.setPreferredSize(new Dimension(120, 40));
         buttonPanel.add(findBtn);
 
+        // Increased width to prevent truncation
         JButton removeBtn = createButton("➖ Remover", btnFont, accentColor, e -> removeValue());
         removeBtn.setToolTipText("Remover valor");
+        removeBtn.setPreferredSize(new Dimension(150, 40));  // Increased width for full text display
         buttonPanel.add(removeBtn);
 
         JButton undoBtn = createButton("↩ Desfazer", btnFont, accentColor, e -> undoOperation());
         undoBtn.setToolTipText("Desfazer última operação");
+        undoBtn.setPreferredSize(new Dimension(130, 40));
         buttonPanel.add(undoBtn);
 
-        JButton inOrderBtn = createButton("L⮞R", btnFont, accentColor, e -> printInOrder());
+        JButton inOrderBtn = createButton("In Order", btnFont, accentColor, e -> printInOrder());
         inOrderBtn.setToolTipText("Percurso In-Order (LNR)");
+        inOrderBtn.setPreferredSize(new Dimension(150, 40));
         buttonPanel.add(inOrderBtn);
 
-        JButton preOrderBtn = createButton("N⮞L⮞R", btnFont, accentColor, e -> printPreOrder());
+        JButton preOrderBtn = createButton("Pre Order", btnFont, accentColor, e -> printPreOrder());
         preOrderBtn.setToolTipText("Percurso Pre-Order (NLR)");
+        preOrderBtn.setPreferredSize(new Dimension(150, 40));
         buttonPanel.add(preOrderBtn);
 
-        JButton postOrderBtn = createButton("L⮞R⮞N", btnFont, accentColor, e -> printPostOrder());
+        JButton postOrderBtn = createButton("Pos Ordem", btnFont, accentColor, e -> printPostOrder());
         postOrderBtn.setToolTipText("Percurso Post-Order (LRN)");
+        postOrderBtn.setPreferredSize(new Dimension(150, 40));
         buttonPanel.add(postOrderBtn);
 
         JButton resetBtn = createButton("🔄 Resetar", btnFont, accentColor, e -> reset(true));
         resetBtn.setToolTipText("Limpar toda a árvore");
+        resetBtn.setPreferredSize(new Dimension(120, 40));
         buttonPanel.add(resetBtn);
 
         outputArea = new JTextArea(7, 85);
@@ -149,7 +144,7 @@ public class AVLTreeVisualizerGUIAP {
         outputArea.setLineWrap(true);
         outputArea.setWrapStyleWord(true);
         outputArea.setBackground(new Color(235, 242, 250));
-        outputArea.setForeground(Color.DARK_GRAY);
+        outputArea.setForeground(new Color(107, 114, 128)); // neutral gray #6b7280
 
         JScrollPane scrollPane = new JScrollPane(outputArea);
 
@@ -167,12 +162,6 @@ public class AVLTreeVisualizerGUIAP {
             }
         });
 
-        tabbedPane.addChangeListener(e -> {
-            if (tabbedPane.getSelectedIndex() == 1) {
-                tabbedPane.setComponentAt(1, createStatsPanel());
-            }
-        });
-
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
     }
@@ -183,7 +172,21 @@ public class AVLTreeVisualizerGUIAP {
         btn.setFont(font);
         btn.setForeground(Color.WHITE);
         btn.setBackground(color);
-        btn.setBorder(BorderFactory.createEmptyBorder(7, 16, 7, 16));
+        // Subtle rounded corners for modern look
+        btn.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(200, 200, 200), 1, true),
+                BorderFactory.createEmptyBorder(7, 16, 7, 16)
+        ));
+        btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        // Smooth color transition on hover
+        btn.addMouseListener(new MouseAdapter() {
+            public void mouseEntered(MouseEvent e) {
+                btn.setBackground(color.brighter());
+            }
+            public void mouseExited(MouseEvent e) {
+                btn.setBackground(color);
+            }
+        });
         btn.addActionListener(listener);
         return btn;
     }
@@ -200,9 +203,7 @@ public class AVLTreeVisualizerGUIAP {
                         Resetar: Limpa toda a árvore.
                         O nó recentemente alterado/buscado ficará destacado.
                         
-                        Atalhos: ENTER=Inserir, TAB=Abas, ALT+Letra=Acesso rápido, Mouse wheel=zoom estatísticas.
-                        
-                        Alternar tema: botão no topo direito.
+                        Atalhos: ENTER=Inserir.
                         """,
                 "Ajuda", JOptionPane.INFORMATION_MESSAGE);
     }
@@ -294,11 +295,8 @@ public class AVLTreeVisualizerGUIAP {
 
     private void update() {
         treePanel.fadeIn();
-        if (tabbedPane.getSelectedIndex() == 1) {
-            tabbedPane.setComponentAt(1, createStatsPanel());
-        }
+        treePanel.centerTree(); // center the visualization always on update
     }
-
 
     private void undoOperation() {
         if (!undoStack.isEmpty()) {
@@ -318,52 +316,26 @@ public class AVLTreeVisualizerGUIAP {
         inputField.selectAll();
     }
 
-    private JPanel createStatsPanel() {
-        DefaultCategoryDataset dataset = new DefaultCategoryDataset();
-        AVLTree.Node root = tree.getRoot();
-        int height = (root != null) ? treePanel.getTreeHeight(root) : 0;
-        int nodes = (root != null) ? countNodes(root) : 0;
-
-        dataset.addValue(height, "Árvore", "Altura");
-        dataset.addValue(nodes, "Árvore", "Nós");
-
-        JFreeChart chart = ChartFactory.createBarChart(
-                "Estatísticas da Árvore AVL",
-                "Métrica",
-                "Valor",
-                dataset
-        );
-        ChartPanel chartPanel = new ChartPanel(chart);
-        chartPanel.setMouseWheelEnabled(true);
-        return chartPanel;
-    }
-
-    private int countNodes(AVLTree.Node node) {
-        if (node == null) return 0;
-        return 1 + countNodes(node.getLeft()) + countNodes(node.getRight());
-    }
-
-    /** --- Painel customizado, com animação e informações extras --- */
+    /** --- Custom panel with animation and extra info --- */
     private class TreePanel extends JPanel {
-        private static final int NODE_DIAMETER = 50; // Tamanho do nó
-        private static final int VERTICAL_GAP = 100; // Espaço vertical entre os nós
-        private static final int HORIZONTAL_SPACING = 20; // Espaço horizontal entre os nós
+        private static final int NODE_DIAMETER = 50; // Node size
+        private static final int VERTICAL_GAP = 100; // Vertical spacing between nodes
+        private static final int HORIZONTAL_SPACING = 20; // Horizontal spacing between nodes
         private float alpha = 1.0f;
-
 
         private double zoom = 1.0;
         private int offsetX = 0, offsetY = 0, lastMouseX, lastMouseY;
 
-        private final Map<AVLTree.Node, Point> nodePositions = new HashMap<>(); // Mapa para armazenar posições dos nós
+        private final Map<AVLTree.Node, Point> nodePositions = new HashMap<>(); // Store node positions
 
         public TreePanel() {
-            setBackground(new Color(250, 251, 253));
-            setToolTipText(""); // ativa as tooltips nativas
+            setBackground(Color.white); // light background as per guidelines
+            setToolTipText(""); // enables native tooltips
 
             addMouseWheelListener(e -> {
                 double scale = e.getPreciseWheelRotation() < 0 ? 1.1 : 0.9;
                 zoom *= scale;
-                zoom = Math.max(zoom, 0.2); // limita zoom mínimo
+                zoom = Math.max(zoom, 0.2); // minimum zoom
                 repaint();
             });
 
@@ -373,6 +345,7 @@ public class AVLTreeVisualizerGUIAP {
                     lastMouseY = e.getY();
                     setCursor(Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR));
                 }
+
                 public void mouseReleased(MouseEvent e) {
                     setCursor(Cursor.getDefaultCursor());
                 }
@@ -405,6 +378,44 @@ public class AVLTreeVisualizerGUIAP {
             return x;
         }
 
+        // New method to calculate tree bounding box width and height
+        private Dimension getTreeDimensions() {
+            if (nodePositions.isEmpty()) return new Dimension(0, 0);
+            int minX = Integer.MAX_VALUE;
+            int maxX = Integer.MIN_VALUE;
+            int minY = Integer.MAX_VALUE;
+            int maxY = Integer.MIN_VALUE;
+            for (Point p : nodePositions.values()) {
+                minX = Math.min(minX, p.x);
+                maxX = Math.max(maxX, p.x);
+                minY = Math.min(minY, p.y);
+                maxY = Math.max(maxY, p.y);
+            }
+            // Node diameter adds to total width/height
+            int width = maxX - minX + NODE_DIAMETER;
+            int height = maxY - minY + NODE_DIAMETER;
+            return new Dimension(width, height);
+        }
+
+        // New method to center tree visualization in panel
+        public void centerTree() {
+            if (tree.getRoot() == null) {
+                offsetX = getWidth() / 2;
+                offsetY = NODE_DIAMETER; // some padding from top
+                repaint();
+                return;
+            }
+            calculateNodePositions(tree.getRoot(), 0, 0);
+            Dimension treeDim = getTreeDimensions();
+            // Center horizontally
+            offsetX = (getWidth() - (int)(treeDim.width * zoom)) / 2;
+            // Center vertically with some padding
+            offsetY = (getHeight() - (int)(treeDim.height * zoom)) / 2;
+            if (offsetY < NODE_DIAMETER)
+                offsetY = NODE_DIAMETER;
+            repaint();
+        }
+
         public void fadeIn() {
             alpha = 0.15f;
             Timer timer = new Timer(13, null);
@@ -420,7 +431,6 @@ public class AVLTreeVisualizerGUIAP {
             });
             timer.start();
         }
-
 
         @Override
         protected void paintComponent(Graphics g) {
@@ -464,14 +474,7 @@ public class AVLTreeVisualizerGUIAP {
         }
 
         private void drawNode(Graphics2D g2d, AVLTree.Node node, int x, int y) {
-            g2d.setColor(accentNodeShadow);
-            g2d.fillOval(x - NODE_DIAMETER / 2 + 3, y - NODE_DIAMETER / 2 + 8, NODE_DIAMETER, NODE_DIAMETER);
-
-            if (node.getValue() == lastAccessed)
-                g2d.setColor(new Color(0xfbc02d));
-            else
-                g2d.setColor(accentColor);
-
+            g2d.setColor(accentColor);
             g2d.fillOval(x - NODE_DIAMETER / 2, y - NODE_DIAMETER / 2, NODE_DIAMETER, NODE_DIAMETER);
 
             g2d.setColor(Color.DARK_GRAY);
@@ -484,12 +487,6 @@ public class AVLTreeVisualizerGUIAP {
             g2d.setFont(new Font(Font.MONOSPACED, Font.BOLD, 14));
             g2d.setColor(Color.black);
             g2d.drawString(value, x - textWidth / 2, y + textHeight / 4);
-
-            int bal = getBalance(node);
-            g2d.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 10));
-            String info = "h=" + node.getHeight() + ", bf=" + bal;
-            g2d.setColor(Color.black);
-            g2d.drawString(info, x - NODE_DIAMETER / 2, y + NODE_DIAMETER / 2 + 12);
         }
 
         private void drawLine(Graphics2D g2d, int x1, int y1, int x2, int y2) {
@@ -497,16 +494,121 @@ public class AVLTreeVisualizerGUIAP {
             g2d.setStroke(new BasicStroke(3f));
             g2d.drawLine(x1, y1 + NODE_DIAMETER / 3, x2, y2 - NODE_DIAMETER / 3);
         }
+    }
 
-        private int getTreeHeight(AVLTree.Node node) {
-            if (node == null) return 0;
-            return 1 + Math.max(getTreeHeight(node.getLeft()), getTreeHeight(node.getRight()));
+    /**
+     * WrapLayout: a FlowLayout subclass that supports wrapping in rows, useful for responsive button layout.
+     * Source inspired/adapted from: https://tips4java.wordpress.com/2008/11/06/wrap-layout/
+     */
+    public static class WrapLayout extends FlowLayout
+    {
+        private Dimension preferredLayoutSize;
+
+        public WrapLayout()
+        {
+            super();
         }
 
-        private int getBalance(AVLTree.Node n) {
-            if (n == null) return 0;
-            return (n.getLeft() == null ? 0 : n.getLeft().getHeight()) -
-                    (n.getRight() == null ? 0 : n.getRight().getHeight());
+        public WrapLayout(int align)
+        {
+            super(align);
+        }
+
+        public WrapLayout(int align, int hgap, int vgap)
+        {
+            super(align, hgap, vgap);
+        }
+
+        @Override
+        public Dimension preferredLayoutSize(Container target)
+        {
+            return layoutSize(target, true);
+        }
+
+        @Override
+        public Dimension minimumLayoutSize(Container target)
+        {
+            Dimension minimum = layoutSize(target, false);
+            minimum.width -= (getHgap() + 1);
+            return minimum;
+        }
+
+        private Dimension layoutSize(Container target, boolean preferred)
+        {
+            synchronized (target.getTreeLock())
+            {
+                int targetWidth = target.getWidth();
+
+                if (targetWidth == 0)
+                    targetWidth = Integer.MAX_VALUE;
+
+                int hgap = getHgap();
+                int vgap = getVgap();
+                Insets insets = target.getInsets();
+                int horizontalInsetsAndGap = insets.left + insets.right + (hgap * 2);
+                int maxWidth = targetWidth - horizontalInsetsAndGap;
+
+                Dimension dim = new Dimension(0, 0);
+                int rowWidth = 0;
+                int rowHeight = 0;
+
+                int nmembers = target.getComponentCount();
+
+                for (int i = 0; i < nmembers; i++)
+                {
+                    Component m = target.getComponent(i);
+
+                    if (m.isVisible())
+                    {
+                        Dimension d = preferred ? m.getPreferredSize() : m.getMinimumSize();
+
+                        if (rowWidth + d.width > maxWidth)
+                        {
+                            addRow(dim, rowWidth, rowHeight);
+                            rowWidth = 0;
+                            rowHeight = 0;
+                        }
+
+                        if (rowWidth != 0)
+                        {
+                            rowWidth += hgap;
+                        }
+
+                        rowWidth += d.width;
+                        rowHeight = Math.max(rowHeight, d.height);
+                    }
+                }
+
+                addRow(dim, rowWidth, rowHeight);
+
+                dim.width += horizontalInsetsAndGap;
+                dim.height += insets.top + insets.bottom + vgap * 2;
+
+                // When using a scroll pane or the DecoratedLookAndFeel we need to
+                // make sure the preferred size is less than the size of the
+                // target containter so shrinking works correctly.
+                Container scrollPane = SwingUtilities.getUnwrappedParent(target);
+                if (scrollPane instanceof JScrollPane)
+                {
+                    JScrollPane jsp = (JScrollPane) scrollPane;
+                    Insets scrollInsets = jsp.getInsets();
+                    dim.width -= (scrollInsets.left + scrollInsets.right);
+                }
+
+                return dim;
+            }
+        }
+
+        private void addRow(Dimension dim, int rowWidth, int rowHeight)
+        {
+            dim.width = Math.max(dim.width, rowWidth);
+
+            if (dim.height > 0)
+            {
+                dim.height += getVgap();
+            }
+
+            dim.height += rowHeight;
         }
     }
 }

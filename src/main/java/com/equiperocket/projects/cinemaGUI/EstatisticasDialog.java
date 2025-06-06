@@ -16,7 +16,6 @@ public class EstatisticasDialog extends JDialog {
 
         try {
             addEstatistica(statsPanel, "Total de clientes atendidos: ", String.valueOf(cinema.getTotalClientesAtendidos()));
-            addEstatistica(statsPanel, "Tempo médio de espera: ", "20 segundos");
             addEstatistica(statsPanel, "Clientes na fila: ", String.valueOf(cinema.getTotalClientesNasFilas()));
         } catch (Exception e) {
             JLabel erroLabel = new JLabel("Erro ao carregar estatísticas: " + e.getMessage());
